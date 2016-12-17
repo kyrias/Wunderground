@@ -180,7 +180,7 @@ class Wunderground(callbacks.Plugin):
 
 
         conditions = u'Conditions: {}'.format(
-                observation.get('weather', 'N/A')
+                observation.get('weather', '').strip() or 'N/A'
         )
         output.append(conditions)
 
