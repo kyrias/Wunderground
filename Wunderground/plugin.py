@@ -86,7 +86,7 @@ class Wunderground(callbacks.Plugin):
         Get the default weather location."""
 
         location = self.userValue('defaultLocation', msg.prefix)
-        if location
+        if location:
             irc.reply('Default location is "{}"'.format(location))
         else:
             irc.reply('No default location set')
