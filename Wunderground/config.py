@@ -49,11 +49,14 @@ def configure(advanced):
 
 
 Wunderground = conf.registerPlugin('Wunderground')
+
 conf.registerGlobalValue(Wunderground, 'key',
         registry.String('', """Wunderground API key""", private=True))
 conf.registerGlobalValue(Wunderground, 'geonamesUsername',
         registry.String('', """Username for use when looking up locations at
             geonames.org""", private=True))
 
+conf.registerUserValue(conf.users.plugins.Wunderground, 'defaultLocation',
+    registry.String('', ''))
 
 # vim:set shiftwidth=4 tabstop=4 expandtab textwidth=79:
