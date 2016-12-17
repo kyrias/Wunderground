@@ -124,7 +124,12 @@ class Wunderground(callbacks.Plugin):
         url = self.conditionsApiBase.format(utils.web.urlquote(key))
         url += query + '.json'
 
-        data = utils.web.getUrl(url)
+        try:
+            data = utils.web.getUrl(url)
+        except utils.web.Error as e:
+            irc.error('Failed to get observation data: {}'.format(e))
+            return
+
         data = json.loads(data.decode('utf-8'))
 
         if 'current_observation' in data:
