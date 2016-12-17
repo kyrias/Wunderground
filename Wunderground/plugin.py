@@ -80,17 +80,24 @@ class Wunderground(callbacks.Plugin):
     weather = wrap(weather, [optional('text')])
 
 
-    def defaultlocation(self, irc, msg, args, location):
-        """<location>"""
-        if location:
-            self.setUserValue('defaultLocation', msg.prefix,
-                              location, ignoreNoUser=True)
-            irc.reply('Default location set to "{}"'.format(location))
+    def getdefault(self, irc, msg, args):
+        """"""
+        location = self.userValue('defaultLocation', msg.prefix)
+        if location
+            irc.reply('Default location is "{}"'.format(location))
         else:
-            defaultLocation = self.userValue('defaultLocation', msg.prefix)
-            irc.reply('Default location is "{}"'.format(defaultLocation))
+            irc.reply('No default location set')
 
-    defaultlocation = wrap(defaultlocation, [optional('text')])
+    getdefault = wrap(getdefault)
+
+
+    def setdefault(self, irc, msg, args, location):
+        """<location>"""
+        self.setUserValue('defaultLocation', msg.prefix,
+                          location, ignoreNoUser=True)
+        irc.reply('Default location set to "{}"'.format(location))
+
+    setdefault = wrap(setdefault, ['text'])
 
 
     def lookup_location(self, location):
