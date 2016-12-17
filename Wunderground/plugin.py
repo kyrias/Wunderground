@@ -53,7 +53,7 @@ class Wunderground(callbacks.Plugin):
     geonamesApiBase = 'http://api.geonames.org/searchJSON?q={query}&featureClass=P&username={username}'
 
     def weather(self, irc, msg, args, location):
-        """[location]"""
+        """[<location>]"""
         key = self.registryValue('key')
         defaultLocation = self.userValue('defaultLocation', msg.prefix)
 
@@ -81,7 +81,10 @@ class Wunderground(callbacks.Plugin):
 
 
     def getdefault(self, irc, msg, args):
-        """"""
+        """None
+
+        Get the default weather location."""
+
         location = self.userValue('defaultLocation', msg.prefix)
         if location
             irc.reply('Default location is "{}"'.format(location))
@@ -92,7 +95,10 @@ class Wunderground(callbacks.Plugin):
 
 
     def setdefault(self, irc, msg, args, location):
-        """<location>"""
+        """<location>
+
+        Set the default weather location."""
+
         self.setUserValue('defaultLocation', msg.prefix,
                           location, ignoreNoUser=True)
         irc.reply('Default location set to "{}"'.format(location))
