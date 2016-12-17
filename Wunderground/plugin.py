@@ -204,7 +204,7 @@ class Wunderground(callbacks.Plugin):
         updatedDiff = (datetime.now() - datetime.fromtimestamp(observation_epoch)).seconds
         if updatedDiff >= 60*60:
             updated = 'Updated: {} hours, {} mins, {} secs ago'.format(
-                    (updatedDiff - (updatedDiff % 60*60)) // 60*60,
+                    (updatedDiff - (updatedDiff % (60*60))) // (60*60),
                     (updatedDiff - (updatedDiff % 60)) // 60,
                     updatedDiff % 60
             )
