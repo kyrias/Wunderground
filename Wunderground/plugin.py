@@ -175,6 +175,7 @@ class Wunderground(callbacks.Plugin):
         )
         output.append(conditions)
 
+        windspeed = None
         wind_kph = observation.get('wind_kph', None)
         if wind_kph:
             windspeed = round(int(wind_kph) * 1000 / 3600, 2)
