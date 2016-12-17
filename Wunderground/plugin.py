@@ -148,6 +148,7 @@ class Wunderground(callbacks.Plugin):
         )
         output.append(location)
 
+
         temp = u'Temperature: {} °C (Feels like: {} °C)'.format(
                 observation.get('temp_c', 'N/A'),
                 observation.get('feelslike_c', 'N/A')
@@ -158,10 +159,12 @@ class Wunderground(callbacks.Plugin):
             temp += u' (Wind Chill: {} °C)'.format(observation['windchill_c'])
         output.append(temp)
 
+
         humidity = u'Humidity: {}'.format(
             observation.get('relative_humidity', 'N/A%')
         )
         output.append(humidity)
+
 
         pressure_mb = float(observation.get('pressure_mb', 0))
         if pressure_mb:
@@ -170,27 +173,33 @@ class Wunderground(callbacks.Plugin):
             )
             output.append(pressure)
 
+
         conditions = u'Conditions: {}'.format(
                 observation.get('weather', 'N/A')
         )
         output.append(conditions)
 
-        windspeed = None
-        wind_kph = observation.get('wind_kph', None)
+
+        wind_direction = observation.get('wind_dir', '').strip()
+        wind_kph = observation.get('wind_kph', '').strip()
+        wind = u'Wind:'
+
+        if wind_direction:
+            wind += ' {}'.format(wind_direction)
+            if wind_kph:
+                wind += ' at'
+
         if wind_kph:
             windspeed = round(int(wind_kph) * 1000 / 3600, 2)
-
-        wind = u'Wind: {} at {}'.format(
-                observation.get('wind_dir', 'N/A'),
-                '{} m/s'.format(windspeed) or 'N/A',
-        )
+            wind += ' {} m/s'.format(windspeed)
         output.append(wind)
+
 
         observation_epoch = int(observation['observation_epoch'])
         updatedDiff = (datetime.now() - datetime.fromtimestamp(observation_epoch)).seconds
-        if updatedDiff >= 3600:
+        if updatedDiff >= 60*60:
             updated = 'Updated: {} hours, {} mins, {} secs ago'.format(
-                    (updatedDiff - (updatedDiff % 3600)) // 3600,
+                    (updatedDiff - (updatedDiff % 60*60)) // 60*60,
                     (updatedDiff - (updatedDiff % 60)) // 60,
                     updatedDiff % 60
             )
@@ -202,6 +211,7 @@ class Wunderground(callbacks.Plugin):
         else:
             updated = 'Updated: {} secs ago'.format(updatedDiff)
         output.append(updated)
+
 
         return output
 
