@@ -185,17 +185,17 @@ class Wunderground(callbacks.Plugin):
 
         wind_direction = observation.get('wind_dir', '').strip()
         wind_kph = observation.get('wind_kph', None)
-        wind = u'Wind:'
+        if wind_direction or wind_kph:
+            wind = u'Wind:'
+            if wind_direction:
+                wind += ' {}'.format(wind_direction)
+                if wind_kph:
+                    wind += ' at'
 
-        if wind_direction:
-            wind += ' {}'.format(wind_direction)
-            if wind_kph is not None:
-                wind += ' at'
-
-        if wind_kph is not None:
-            windspeed = round(int(wind_kph) * 1000 / 3600, 2)
-            wind += ' {} m/s'.format(windspeed)
-        output.append(wind)
+            if wind_kph:
+                windspeed = round(int(wind_kph) * 1000 / 3600, 2)
+                wind += ' {} m/s'.format(windspeed)
+            output.append(wind)
 
 
         observation_epoch = int(observation['observation_epoch'])
