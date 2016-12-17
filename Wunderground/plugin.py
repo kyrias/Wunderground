@@ -81,7 +81,7 @@ class Wunderground(callbacks.Plugin):
 
 
     def getdefault(self, irc, msg, args):
-        """None
+        """
 
         Get the default weather location."""
 
