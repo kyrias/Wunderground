@@ -175,8 +175,13 @@ class Wunderground(callbacks.Plugin):
         )
         output.append(conditions)
 
-        wind = u'Wind: {}'.format(
-                observation.get('wind_dir', 'N/A')
+        wind_kph = observation.get('wind_kph', None)
+        if wind_kph:
+            windspeed = int(wind_kph) * 1000 / 3600
+
+        wind = u'Wind: {} at {}'.format(
+                observation.get('wind_dir', 'N/A'),
+                '{} m/s'.format(windspeed) or 'N/A',
         )
         output.append(wind)
 
