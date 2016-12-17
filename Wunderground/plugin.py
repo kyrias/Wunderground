@@ -165,10 +165,9 @@ class Wunderground(callbacks.Plugin):
         output.append(temp)
 
 
-        humidity = u'Humidity: {}'.format(
-            observation.get('relative_humidity', 'N/A%')
-        )
-        output.append(humidity)
+        humidity = observation.get('relative_humidity', '').strip()
+        if humidity:
+            output.append(u'Humidity: {}'.format(humidity))
 
 
         pressure_mb = float(observation.get('pressure_mb', 0))
@@ -179,10 +178,9 @@ class Wunderground(callbacks.Plugin):
             output.append(pressure)
 
 
-        conditions = u'Conditions: {}'.format(
-                observation.get('weather', '').strip() or 'N/A'
-        )
-        output.append(conditions)
+        condition = observation.get('weather', '').strip()
+        if condition:
+            output.append(u'Conditions: {}'.format(condition))
 
 
         wind_direction = observation.get('wind_dir', '').strip()
