@@ -52,22 +52,22 @@ class Wunderground(callbacks.Plugin):
     conditionsApiBase = 'https://api.wunderground.com/api/{}/conditions/q/'
     geonamesApiBase = 'http://api.geonames.org/searchJSON?q={query}&featureClass=P&username={username}'
 
-    def weather(self, irc, msg, args, location):
+    def weather(self, irc, msg, args, loc):
         """[<location>]"""
         key = self.registryValue('key')
         defaultLocation = self.userValue('defaultLocation', msg.prefix)
 
-        if not location and not defaultLocation:
+        if not loc and not defaultLocation:
             irc.error('No location given and no default location set')
             return
 
-        if not location:
-            location = defaultLocation
+        if not loc:
+            loc = defaultLocation
 
-        location = self.lookup_location(location)
+        location = self.lookup_location(loc)
         if not location:
             irc.error('''Could not look up location '{}'. Does that place even exist?'''
-                      .format(location))
+                      .format(loc))
             return
 
 
