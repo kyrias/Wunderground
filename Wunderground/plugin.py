@@ -66,7 +66,7 @@ class Wunderground(callbacks.Plugin):
 
         location = self.lookup_location(location)
         if not location:
-            irc.error('Could not look up location \'{}\'. Does that place even exist?'
+            irc.error('''Could not look up location '{}'. Does that place even exist?'''
                       .format(location))
             return
 
