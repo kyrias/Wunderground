@@ -69,6 +69,9 @@ class Wunderground(callbacks.Plugin):
             irc.error('''Could not look up location '{}'. Does that place even exist?'''
                       .format(loc))
             return
+        else if 'error' in location:
+            irc.error('''Could not look up location: '{}'.'''
+                     .format(location['error']))
 
 
         query = '{},{}'.format(location['lat'], location['lng'])
@@ -115,6 +118,10 @@ class Wunderground(callbacks.Plugin):
         })
         data = utils.web.getUrl(url)
         data = json.loads(data.decode('utf-8'))
+
+        if 'totalResultsCount' not in data and 'status' in data:
+            return { 'error': data['status'].get('message', 'unknown error') }
+
         if data['totalResultsCount'] == 0:
             return {}
         else:
