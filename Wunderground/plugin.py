@@ -53,13 +53,15 @@ class Wunderground(callbacks.Plugin):
     geonamesApiBase = 'http://api.geonames.org/searchJSON?q={query}&featureClass=P&username={username}'
 
     def weather(self, irc, msg, args, optlist, loc):
-        """[--station <id>] | [<location>]"""
+        """[--station <id>] | [--airport <code>] | [<location>]"""
         key = self.registryValue('key')
 
         opts = dict(optlist)
 
         if opts.get('station', False):
             query = 'pws:{}'.format(loc)
+        elif opts.get('airport', False):
+            query = loc
         else:
             defaultLocation = self.userValue('defaultLocation', msg.prefix)
 
@@ -90,7 +92,8 @@ class Wunderground(callbacks.Plugin):
         else:
             irc.reply(u' | '.join(self.format_current_observation(condition)))
 
-    weather = wrap(weather, [getopts({'station': ''}), optional('text')])
+    weather = wrap(weather, [getopts({'station': '', 'airport': ''}),
+                             optional('text')])
 
 
     def defaultlocation(self, irc, msg, args, location):
