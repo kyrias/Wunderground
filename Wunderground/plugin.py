@@ -52,36 +52,45 @@ class Wunderground(callbacks.Plugin):
     conditionsApiBase = 'https://api.wunderground.com/api/{}/conditions/q/'
     geonamesApiBase = 'http://api.geonames.org/searchJSON?q={query}&featureClass=P&username={username}'
 
-    def weather(self, irc, msg, args, loc):
-        """[<location>]"""
+    def weather(self, irc, msg, args, optlist, loc):
+        """[--station <id>] | [<location>]"""
         key = self.registryValue('key')
-        defaultLocation = self.userValue('defaultLocation', msg.prefix)
 
-        if not loc and not defaultLocation:
-            irc.error('No location given and no default location set')
-            return
+        opts = dict(optlist)
 
-        if not loc:
-            loc = defaultLocation
-
-        location = self.lookup_location(loc)
-        if not location:
-            irc.error('''Could not look up location '{}'. Does that place even exist?'''
-                      .format(loc))
-            return
-        elif 'error' in location:
-            irc.error('''Could not look up location: '{}'.'''
-                     .format(location['error']))
-
-
-        query = '{},{}'.format(location['lat'], location['lng'])
-        (condition, error) = self.get_current_observation(key, query)
-        if error:
-            irc.error('wunderground: {}'.format(error['description']))
+        if opts.get('station', False):
+            query = 'pws:{}'.format(loc)
         else:
-            irc.reply(u' | '.join(self.format_current_observation(location, condition)))
+            defaultLocation = self.userValue('defaultLocation', msg.prefix)
 
-    weather = wrap(weather, [optional('text')])
+            if not loc and not defaultLocation:
+                irc.error('No location given and no default location set')
+                return
+
+            if not loc:
+                loc = defaultLocation
+
+            location = self.lookup_location(loc)
+            if not location:
+                irc.error('''Could not look up location '{}'. Does that place even exist?'''
+                          .format(loc))
+                return
+            elif 'error' in location:
+                irc.error('''Could not look up location: '{}'.'''
+                         .format(location['error']))
+
+            query = '{},{}'.format(location['lat'], location['lng'])
+
+        (condition, error) = self.get_current_observation(irc, key, query)
+        if error:
+            if 'description' in error:
+                irc.error('wunderground: {}'.format(error['description']))
+            elif opts.get('station', False) and error['type'] == 'Station:OFFLINE':
+                irc.error('''Specified station is offline or doesn't exist.''')
+        else:
+            irc.reply(u' | '.join(self.format_current_observation(condition)))
+
+    weather = wrap(weather, [getopts({'station': ''}), optional('text')])
 
 
     def defaultlocation(self, irc, msg, args, location):
@@ -121,9 +130,9 @@ class Wunderground(callbacks.Plugin):
             return data['geonames'][0]
 
 
-    def get_current_observation(self, key, query):
+    def get_current_observation(self, irc, key, query):
         url = self.conditionsApiBase.format(utils.web.urlquote(key))
-        url += query + '.json'
+        url += utils.web.urlquote(query) + '.json'
 
         try:
             data = utils.web.getUrl(url)
@@ -139,17 +148,16 @@ class Wunderground(callbacks.Plugin):
 
         if 'results' in data['response']:
             query = '{}.json'.format(data['response']['results'][0]['l'])
-            return self.get_current_observation(key, query)
+            return self.get_current_observation(irc, key, query)
 
         return (None, data['response']['error'])
 
 
-    def format_current_observation(self, location, observation):
+    def format_current_observation(self, observation):
         output = []
 
-        location = u'Current weather for {}, {} ({})'.format(
-                location['name'],
-                location['countryName'],
+        location = u'Current weather for {} ({})'.format(
+                observation['display_location']['full'],
                 observation['station_id'],
         )
         output.append(location)
