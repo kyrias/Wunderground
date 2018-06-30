@@ -45,6 +45,14 @@ except ImportError:
     _ = lambda x: x
 
 
+def retrying_get_url(url, tries_left=0):
+    try:
+        return utils.web.getUrl(url)
+    except utils.web.Error as e:
+        if tries_left <= 1:
+            raise
+        return retrying_get_url(url, tries_left=tries_left-1)
+
 class Wunderground(callbacks.Plugin):
     """Queries wundeground.com for weather forecasts"""
     threaded = True
@@ -121,7 +129,10 @@ class Wunderground(callbacks.Plugin):
             'query': utils.web.urlquote(location),
             'username': utils.web.urlquote(username),
         })
-        data = utils.web.getUrl(url)
+        try:
+            data = retrying_get_url(url, 3)
+        except utils.web.Error as e:
+            irc.error(_('Failed to look up location: {}').format(e))
         data = json.loads(data.decode('utf-8'))
 
         if 'totalResultsCount' not in data and 'status' in data:
@@ -138,9 +149,9 @@ class Wunderground(callbacks.Plugin):
         url += utils.web.urlquote(query) + '.json'
 
         try:
-            data = utils.web.getUrl(url)
+            data = retrying_get_url(url, 3)
         except utils.web.Error as e:
-            irc.error('Failed to get observation data: {}'.format(e))
+            irc.error(_('Failed to get observation data: {}').format(e))
             return
 
         data = json.loads(data.decode('utf-8'))
