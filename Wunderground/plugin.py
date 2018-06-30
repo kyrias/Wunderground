@@ -47,7 +47,7 @@ except ImportError:
 
 def retrying_get_url(url, tries_left=0):
     try:
-        return utils.web.getUrl(url)
+        return utils.web.getUrl(url, timeout=5)
     except utils.web.Error as e:
         if tries_left <= 1:
             raise
