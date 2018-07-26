@@ -30,6 +30,7 @@
 
 import json
 from datetime import datetime
+from urllib.parse import urlencode, urlunparse
 
 import supybot.utils as utils
 from supybot.commands import *
