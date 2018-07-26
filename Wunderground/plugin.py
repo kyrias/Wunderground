@@ -128,8 +128,8 @@ class Wunderground(callbacks.Plugin):
         username = self.registryValue('geonamesUsername')
 
         query_parameters = {
-            'q': utils.web.urlquote(location),
-            'username': utils.web.urlquote(username),
+            'q': location,
+            'username': username,
         }
         if not any_featureclass:
             query_parameters['featureClass'] = 'P'
