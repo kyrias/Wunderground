@@ -129,7 +129,7 @@ class Wunderground(callbacks.Plugin):
         query_parameters = {
             'q': utils.web.urlquote(location),
             'username': utils.web.urlquote(username),
-        })
+        }
         if not any_featureclass:
             query_parameters['featureClass'] = 'P'
 
