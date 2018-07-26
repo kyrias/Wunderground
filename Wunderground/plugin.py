@@ -58,10 +58,9 @@ class Wunderground(callbacks.Plugin):
     threaded = True
 
     conditionsApiBase = 'https://api.wunderground.com/api/{}/conditions/q/'
-    geonamesApiBase = 'http://api.geonames.org/searchJSON?q={query}&featureClass=P&username={username}'
 
     def weather(self, irc, msg, args, optlist, loc):
-        """[--station <id>] | [--airport <code>] | [<location>]"""
+        """[--any-featureclass] [--station <id>] | [--airport <code>] | [<location>]"""
         key = self.registryValue('key')
 
         opts = dict(optlist)
@@ -80,7 +79,8 @@ class Wunderground(callbacks.Plugin):
             if not loc:
                 loc = defaultLocation
 
-            location = self.lookup_location(loc)
+            location = self.lookup_location(location=loc,
+                    any_featureclass=opts.get('any-featureclass', False))
             if not location:
                 irc.error('''Could not look up location '{}'. Does that place even exist?'''
                           .format(loc))
@@ -100,7 +100,7 @@ class Wunderground(callbacks.Plugin):
         else:
             irc.reply(u' | '.join(self.format_current_observation(condition)))
 
-    weather = wrap(weather, [getopts({'station': '', 'airport': ''}),
+    weather = wrap(weather, [getopts({'any-featureclass': '', 'station': '', 'airport': ''}),
                              optional('text')])
 
 
@@ -123,16 +123,24 @@ class Wunderground(callbacks.Plugin):
     defaultlocation = wrap(defaultlocation, [optional('text')])
 
 
-    def lookup_location(self, location):
+    def lookup_location(self, location, any_featureclass=False):
         username = self.registryValue('geonamesUsername')
-        url = self.geonamesApiBase.format(**{
-            'query': utils.web.urlquote(location),
+
+        query_parameters = {
+            'q': utils.web.urlquote(location),
             'username': utils.web.urlquote(username),
         })
+        if not any_featureclass:
+            query_parameters['featureClass'] = 'P'
+
+        url = urlunparse(('http', 'api.geonames.org', '/searchJSON', None,
+            urlencode(query_parameters), None))
+
         try:
             data = retrying_get_url(url, 3)
         except utils.web.Error as e:
             irc.error(_('Failed to look up location: {}').format(e))
+
         data = json.loads(data.decode('utf-8'))
 
         if 'totalResultsCount' not in data and 'status' in data:
