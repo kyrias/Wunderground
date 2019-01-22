@@ -161,7 +161,7 @@ class Wunderground(callbacks.Plugin):
             data = retrying_get_url(url, 3)
         except utils.web.Error as e:
             irc.error(_('Failed to get observation data: {}').format(e))
-            return (None, None)
+            return (None, "Failed")
 
         data = json.loads(data.decode('utf-8'))
 
