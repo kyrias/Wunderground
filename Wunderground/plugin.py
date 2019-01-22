@@ -96,7 +96,7 @@ class Wunderground(callbacks.Plugin):
         if error:
             if 'description' in error:
                 irc.error('wunderground: {}'.format(error['description']))
-            elif opts.get('station', False) and error['type'] == 'Station:OFFLINE':
+            elif opts.get('station', False) and error.get('type') == 'Station:OFFLINE':
                 irc.error('''Specified station is offline or doesn't exist.''')
         else:
             irc.reply(u' | '.join(self.format_current_observation(condition)))
@@ -161,7 +161,7 @@ class Wunderground(callbacks.Plugin):
             data = retrying_get_url(url, 3)
         except utils.web.Error as e:
             irc.error(_('Failed to get observation data: {}').format(e))
-            return
+            return (None, None)
 
         data = json.loads(data.decode('utf-8'))
 
