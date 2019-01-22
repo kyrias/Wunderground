@@ -140,7 +140,7 @@ class Wunderground(callbacks.Plugin):
         try:
             data = retrying_get_url(url, 3)
         except utils.web.Error as e:
-            irc.error(_('Failed to look up location: {}').format(e))
+            return
 
         data = json.loads(data.decode('utf-8'))
 
